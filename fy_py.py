@@ -95,7 +95,384 @@ df[['Sales Count', 'Redemption Count', 'Redemption Pressure Ratio']].head(5)
 
 df['Redemption Pressure Ratio'].describe()
 
+df['Sales Redemption Gap'] = (
+    df['Sales Count'] -
+    df['Redemption Count']
+)
 
+df['Sales Redemption Gap'].describe()
 
+df['Redemption Pressure Ratio'] = (
+    df['Redemption Count'] /
+    (df['Sales Count'] + 1)
+)
 
+df['Redemption Pressure Ratio'].describe()
 
+df['Sales Redemption Gap'] = (
+    df['Sales Count'] -
+    df['Redemption Count']
+)
+
+df['Sales Redemption Gap'].describe()
+
+capacity_reference = df['Total Activity Load'].quantile(0.95)
+
+df['Operational Load Index'] = (
+    df['Total Activity Load'] /
+    capacity_reference
+) * 100
+
+df['Operational Load Index'].describe()
+
+df['Operational Load Index'] = (
+    df['Total Activity Load'] /
+    capacity_reference
+) * 100
+
+df['Operational Load Index'].describe()
+
+df[['Total Activity Load', 'Operational Load Index']].head()
+
+capacity_reference = df['Total Activity Load'].quantile(0.95)
+
+df['Operational Load Index'] = (
+    df['Total Activity Load'] /
+    capacity_reference
+) * 100
+
+df['Operational Load Index'].describe()
+
+df['Operational Load Index'] = (
+    df['Operational Load Index']
+    .clip(upper=100)
+)
+
+df['Operational Load Index'].describe()
+
+df['Operational Load Index'].max()
+
+def classify_load(x):
+    if x >= 80:
+        return 'High Pressure'
+    elif x >= 50:
+        return 'Moderate'
+    else:
+        return 'Low Activity'
+
+df['Efficiency Category'] = (
+    df['Operational Load Index']
+    .apply(classify_load)
+)
+
+df['Efficiency Category'].value_counts()
+
+df[['Operational Load Index', 'Efficiency Category']].head(10)
+
+def classify_load(x):
+    if x >= 80:
+        return 'High Pressure'
+    elif x >= 50:
+        return 'Moderate'
+    else:
+        return 'Low Activity'
+
+df['Efficiency Category'] = (
+    df['Operational Load Index']
+    .apply(classify_load)
+)
+
+low_threshold = df['Total Activity Load'].quantile(0.20)
+
+df['Idle Capacity Indicator'] = (
+    df['Total Activity Load'] <= low_threshold
+)
+
+df['Idle Capacity Indicator'].value_counts()
+
+df[['Total Activity Load', 'Idle Capacity Indicator']].head(10)
+
+high_threshold = df['Total Activity Load'].quantile(0.95)
+
+df['Congestion Flag'] = (
+    df['Total Activity Load'] >= high_threshold
+)
+
+df['Congestion Flag'].value_counts()
+
+df[['Total Activity Load', 'Congestion Flag']].head(7)
+
+df['Hour'] = pd.to_datetime(df['Timestamp']).dt.hour
+df.groupby('Hour')['Total Activity Load'].mean()
+
+df['DayOfWeek'] = pd.to_datetime(df['Timestamp']).dt.day_name()
+df.groupby('DayOfWeek')['Total Activity Load'].mean()
+
+print(df.columns.tolist())
+
+df['Total Activity Load'] = (
+    df['Sales Count'] +
+    df['Redemption Count']
+)
+
+print(df[['Sales Count',
+          'Redemption Count',
+          'Total Activity Load']].head())
+
+low_threshold = df['Total Activity Load'].quantile(0.20)
+
+df['Idle Capacity Indicator'] = (
+    df['Total Activity Load'] <= low_threshold
+)
+
+df['Idle Capacity Indicator'].value_counts()
+
+low_threshold = df['Total Activity Load'].quantile(0.20)
+
+df['Idle Capacity Indicator'] = (
+    df['Total Activity Load'] <= low_threshold
+)
+
+print('Total Activity Load' in df.columns)
+
+high_threshold = df['Total Activity Load'].quantile(0.95)
+
+df['Congestion Flag'] = (
+    df['Total Activity Load'] >= high_threshold
+)
+
+df['Congestion Flag'].value_counts()
+
+df.loc[
+    df['Congestion Flag'],
+    ['Total Activity Load', 'Congestion Flag']
+].head(10)
+
+df[df['Congestion Flag']].head()
+
+df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+
+df['Hour'] = df['Timestamp'].dt.hour
+
+print(df[['Timestamp', 'Hour']].head())
+
+df.groupby('Hour')['Total Activity Load'].mean()
+
+print('Hour' in df.columns)
+print('Total Activity Load' in df.columns)
+
+df['Total Activity Load'] = (
+    df['Sales Count'] + df['Redemption Count']
+)
+
+df['Hour'] = pd.to_datetime(df['Timestamp']).dt.hour
+df.groupby('Hour')['Total Activity Load'].mean()
+
+df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+
+df['DayOfWeek'] = df['Timestamp'].dt.day_name()
+
+print(df[['Timestamp', 'DayOfWeek']].head())
+
+df.groupby('DayOfWeek')['Total Activity Load'].mean()
+
+print(df.columns.tolist())
+
+df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+
+df['Weekend'] = df['Timestamp'].dt.dayofweek >= 5
+
+print(df[['Timestamp', 'Weekend']].head())
+
+weekday_analysis = (
+    df.groupby('Weekend')['Total Activity Load']
+      .agg(['mean', 'median', 'max', 'sum'])
+)
+
+weekday_analysis
+
+print(df.columns.tolist())
+
+df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+
+df['DayOfWeek'] = df['Timestamp'].dt.day_name()
+
+day_analysis = (
+    df.groupby('DayOfWeek')['Total Activity Load']
+      .agg(['mean', 'median', 'max'])
+      .sort_values('mean', ascending=False)
+)
+
+day_analysis
+
+df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+
+df['Hour'] = df['Timestamp'].dt.hour
+
+hourly = (
+    df.groupby('Hour')['Total Activity Load']
+      .mean()
+      .reset_index()
+)
+
+hourly
+
+plt.figure(figsize=(12, 5))
+
+sns.lineplot(
+    data=hourly,
+    x='Hour',
+    y='Total Activity Load'
+)
+
+plt.title('Average Ferry Activity by Hour')
+plt.xlabel('Hour of Day')
+plt.ylabel('Average Total Activity')
+plt.xticks(range(0, 24))
+plt.grid(True, alpha=0.3)
+plt.show()
+
+heatmap_data = df.pivot_table(
+    index='DayOfWeek',
+    columns='Hour',
+    values='Total Activity Load',
+    aggfunc='mean'
+)
+
+heatmap_data
+
+plt.figure(figsize=(14, 6))
+
+sns.heatmap(
+    heatmap_data,
+    cmap='YlOrRd',
+    annot=False
+)
+
+plt.title('Ferry Activity Heatmap by Day and Hour')
+plt.xlabel('Hour of Day')
+plt.ylabel('Day of Week')
+plt.show()
+
+plt.figure(figsize=(15, 7))
+
+sns.heatmap(
+    heatmap_data,
+    cmap='YlOrRd'
+)
+
+plt.title('Ferry Activity Heatmap: Day of Week vs Hour')
+plt.xlabel('Hour')
+plt.ylabel('Day')
+plt.show()
+
+print(df.columns.tolist())
+
+df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+
+def assign_season(month):
+    if month in [12, 1, 2]:
+        return 'Winter'
+    elif month in [3, 4, 5]:
+        return 'Spring'
+    elif month in [6, 7, 8]:
+        return 'Summer'
+    else:
+        return 'Autumn'
+
+df['Season'] = df['Timestamp'].dt.month.apply(assign_season)
+
+season_analysis = (
+    df.groupby('Season')['Total Activity Load']
+      .agg(['mean', 'median', 'sum', 'max'])
+)
+
+season_analysis
+
+season_analysis['mean'].plot(
+    kind='bar',
+    figsize=(8, 5)
+)
+
+plt.title('Average Ferry Activity by Season')
+plt.xlabel('Season')
+plt.ylabel('Average Activity')
+plt.xticks(rotation=0)
+plt.show()
+
+print(df.columns.tolist())
+
+df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+
+df['Year'] = df['Timestamp'].dt.year
+
+# Convert Timestamp to datetime
+df['Timestamp'] = pd.to_datetime(df['Timestamp'], errors='coerce')
+
+# Remove rows with invalid timestamps
+df = df.dropna(subset=['Timestamp']).copy()
+
+# Extract date and time features
+df['Year'] = df['Timestamp'].dt.year
+df['Month'] = df['Timestamp'].dt.month
+df['Day'] = df['Timestamp'].dt.day
+df['Hour'] = df['Timestamp'].dt.hour
+df['Minute'] = df['Timestamp'].dt.minute
+df['DayOfWeek'] = df['Timestamp'].dt.day_name()
+df['Date'] = df['Timestamp'].dt.date
+
+# Display the required columns
+print("Date and Time Features")
+df[['Timestamp', 'Year', 'Month', 'Day',
+    'Hour', 'Minute', 'DayOfWeek', 'Date']].head()
+
+year_analysis = (
+    df.groupby('Year')['Total Activity Load']
+      .agg(['mean', 'sum', 'max'])
+)
+
+year_analysis
+
+plt.figure(figsize=(12, 5))
+
+sns.lineplot(
+    data=year_analysis.reset_index(),
+    x='Year',
+    y='mean',
+    marker='o'
+)
+
+plt.title('Average Ferry Activity by Year')
+plt.xlabel('Year')
+plt.ylabel('Average Activity')
+plt.xticks(
+    year_analysis.index,
+    rotation=0
+)
+plt.grid(True, alpha=0.3)
+plt.show()
+
+print(df.columns.tolist())
+
+df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+
+df['Month'] = df['Timestamp'].dt.month
+
+monthly = (
+    df.groupby('Month')['Total Activity Load']
+      .mean()
+)
+
+monthly
+
+monthly.plot(
+    kind='bar',
+    figsize=(10, 5)
+)
+
+plt.title('Average Ferry Activity by Month')
+plt.xlabel('Month')
+plt.ylabel('Average Activity')
+plt.xticks(rotation=0)
+plt.grid(axis='y', alpha=0.3)
+plt.show()
