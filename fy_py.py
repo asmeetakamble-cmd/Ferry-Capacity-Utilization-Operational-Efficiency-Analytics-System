@@ -18,6 +18,41 @@ path='/content/Toronto Island Ferry Tickets.csv'
 df=pd.read_csv("Toronto Island Ferry Tickets.csv")
 df.head(5)
 
+# Convert Timestamp to datetime
+df['Timestamp'] = pd.to_datetime(df['Timestamp'], errors='coerce')
+
+# Create time-based features
+df['Year'] = df['Timestamp'].dt.year
+df['Month'] = df['Timestamp'].dt.month
+df['Day'] = df['Timestamp'].dt.day
+df['Hour'] = df['Timestamp'].dt.hour
+df['Minute'] = df['Timestamp'].dt.minute
+df['DayOfWeek'] = df['Timestamp'].dt.day_name()
+df['Date'] = df['Timestamp'].dt.date
+
+# Create Season
+def assign_season(month):
+    if month in [5, 6, 7, 8, 9]:
+        return 'Summer'
+    else:
+        return 'Off-Season'
+
+df['Season'] = df['Month'].apply(assign_season)
+
+# Create activity features
+df['Total Activity Load'] = (
+    df['Sales Count'] + df['Redemption Count']
+)
+
+df['Redemption Pressure Ratio'] = (
+    df['Redemption Count'] / (df['Sales Count'] + 1)
+)
+
+print("Available columns:", df.columns.tolist())
+
+df[['Timestamp', 'Year', 'Month', 'Day',
+    'Hour', 'Minute', 'DayOfWeek', 'Date']].head()
+
 df.info()
 
 df.describe()
